@@ -22,7 +22,10 @@
                "revenue":400,
                "operating_income":150,
                "ibit":100,
-               "net_income":35
+               "net_income":35,
+               "operation_cashflow":80,
+               "financing_cashflow":50,
+               "investment_cashflow": -30
             },
             {  
                "fixed_asset":300,
@@ -33,11 +36,14 @@
                "revenue":300,
                "operating_income":150,
                "ibit":100,
-               "net_income":35
+               "net_income":35,
+               "operation_cashflow":80,
+               "financing_cashflow":50,
+               "investment_cashflow": -30
             }            
             ];
 
-            var w = 400;
+            var w = 500;
             var h = 300;
 
             var svg = d3.select("body")
@@ -151,6 +157,11 @@
                   console.log(Math.abs(d["equity"]));
                   console.log(scaleY(Math.abs(d["equity"])));
                   return scaleY(Math.abs(d["equity"]));});
+
+            eS
+               .append("rect")
+               .attr("class", "operation_cashflow")
+               .attr("fill", "#38849A") //#A86780 #ADB853
 
          </script>
 </html>

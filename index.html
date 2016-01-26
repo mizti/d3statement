@@ -25,8 +25,8 @@
                "net_income":35
             },
             {  
-               "fixed_asset":350,
-               "current_asset":150,
+               "fixed_asset":300,
+               "current_asset":200,
                "equity":300,
                "long-term_liabilities":80,
                "short-term_liabilities":120,
@@ -47,13 +47,11 @@
 
             var padding_left = 20;
             var padding_bottom = 30;
-            var padding_bottom = 00;
             var padding_top = 10;
 
             var bs_width = 30;
             var revenue_width = 50;
             var padding_between_types = 15;
-
             var padding_between_data = 25;
 
             var data_width = bs_width * 2 + padding_between_types + revenue_width;
@@ -62,21 +60,28 @@
             var domainMin = d3.min(dataset, function(d){ return Math.min(0, d["equity"], d["operating_income"]  , d["ibit"], d["net_income"])});
             var domainMax = d3.max(dataset, function(d){ return Math.max(d["current_asset"] + d["fixed_asset"], d["revenue"], d["operating_income"]  , d["ibit"], d["net_income"])});
             console.log(domainMin, domainMax)
-            scaleY.domain([domainMin, domainMax]);
-            padding_bottom = padding_bottom - domainMin;
+            scaleY.domain([0, domainMax - domainMin]);
             scaleY.range([0, h - padding_bottom - padding_top]);
 
             var eS = svg.selectAll("rect")
                .data(dataset)
                .enter();
 
+            eS
+               .append("rect")
+               .attr("class", "fixed_asset")
+               .attr("fill", "lightskyblue")
+               .attr("x", function(d, i){return padding_left + i * (data_width + padding_between_data);})
+               .attr("y", function(d){return h - padding_bottom - scaleY(d["fixed_asset"] - domainMin);})
+               .attr("width", bs_width)
+               .attr("height", function(d){return scaleY(d["fixed_asset"]);});
 
             eS
                .append("rect")
                .attr("class", "current_asset")
                .attr("fill", "royalblue")
                .attr("x", function(d, i){return padding_left + i * (data_width + padding_between_data);})
-               .attr("y", function(d){return h - scaleY(d["fixed_asset"] + d["current_asset"] + padding_bottom ) ;})
+               .attr("y", function(d){return h - padding_bottom - scaleY(d["fixed_asset"] + d["current_asset"] - domainMin) ;})
                .attr("width", bs_width)
                .attr("height", function(d){return scaleY(d["current_asset"]);});
 
@@ -86,7 +91,7 @@
                .attr("class", "long-term_liabilities")
                .attr("fill", "lightpink")
                .attr("x", function(d, i){return padding_left + i * (data_width + padding_between_data) + bs_width;})
-               .attr("y", function(d){return h - scaleY( Math.max(0, d["equity"]) + d["long-term_liabilities"] + padding_bottom) ;})
+               .attr("y", function(d){return h - padding_bottom- scaleY( Math.max(0, d["equity"]) + d["long-term_liabilities"] - domainMin) ;})
                .attr("width", bs_width)
                .attr("height", function(d){return scaleY(d["long-term_liabilities"]);});
 
@@ -95,7 +100,7 @@
                .attr("class", "short-term_liabilities")
                .attr("fill", "tomato")
                .attr("x", function(d, i){return padding_left + i * (data_width + padding_between_data) + bs_width;})
-               .attr("y", function(d){return h - scaleY( Math.max(0, d["equity"]) + d["long-term_liabilities"] + d["short-term_liabilities"] + padding_bottom);})
+               .attr("y", function(d){return h - padding_bottom - scaleY( Math.max(0, d["equity"]) + d["long-term_liabilities"] + d["short-term_liabilities"] - domainMin);})
                .attr("width", bs_width)
                .attr("height", function(d){return scaleY(d["short-term_liabilities"]);});
 
@@ -104,7 +109,7 @@
                .attr("class", "revenue")
                .attr("fill", "gold")
                .attr("x", function(d, i){return padding_left + i * (data_width + padding_between_data) + bs_width * 2 + padding_between_types;})
-               .attr("y", function(d){return h - scaleY(d["revenue"] + padding_bottom);})
+               .attr("y", function(d){return h - padding_bottom - scaleY(d["revenue"] - domainMin);})
                .attr("width", revenue_width)
                .attr("height", function(d){return scaleY(d["revenue"]);});               
 
@@ -113,7 +118,7 @@
                .attr("class", "operating_income")
                .attr("fill", "greenyellow")
                .attr("x", function(d, i){return padding_left + i * (data_width + padding_between_data) + bs_width * 2 + padding_between_types;})
-               .attr("y", function(d){return h - scaleY(d["operating_income"] + padding_bottom ) ;})
+               .attr("y", function(d){return h - padding_bottom - scaleY(d["operating_income"] - domainMin) ;})
                .attr("width", revenue_width * 0.7)
                .attr("height", function(d){return scaleY(d["operating_income"]);});               
 
@@ -122,7 +127,7 @@
                .attr("class", "ibit")
                .attr("fill", "limegreen")
                .attr("x", function(d, i){return padding_left + i * (data_width + padding_between_data) + bs_width * 2 + padding_between_types;})
-               .attr("y", function(d){return h - scaleY(d["ibit"] + padding_bottom);})
+               .attr("y", function(d){return h - padding_bottom- scaleY(d["ibit"] - domainMin);})
                .attr("width", revenue_width * 0.5)
                .attr("height", function(d){return scaleY(d["ibit"]);});
 
@@ -131,36 +136,21 @@
                .attr("class", "net_income")
                .attr("fill", "lime")
                .attr("x", function(d, i){return padding_left + i * (data_width + padding_between_data) + bs_width * 2 + padding_between_types;})
-               .attr("y", function(d){return h - scaleY(d["net_income"] +  padding_bottom);})
+               .attr("y", function(d){return h - padding_bottom -scaleY(d["net_income"] - domainMin);})
                .attr("width", revenue_width * 0.3)
                .attr("height", function(d){return scaleY(d["net_income"]);});
-
-
-            eS
-               .append("rect")
-               .attr("class", "fixed_asset")
-               .attr("fill", "lightskyblue")
-               .attr("x", function(d, i){return padding_left + i * (data_width + padding_between_data);})
-               .attr("y", function(d){return h - scaleY(d["fixed_asset"] + padding_bottom );})
-               .attr("width", bs_width)
-               .attr("height", function(d){return scaleY(d["fixed_asset"]);});
 
             eS
                .append("rect")
                .attr("class", "equity")
                .attr("fill", "lightgreen")
                .attr("x", function(d, i){return padding_left + i * (data_width + padding_between_data) + bs_width;})
-               .attr("y", function(d){
-                  if (d["equity"] > 0)
-                     return h - scaleY(d["equity"] + padding_bottom) ;
-                  else
-                     console.log("h",h);
-                     console.log(padding_bottom);
-                     console.log(scaleY(padding_bottom));
-                     return h - scaleY(padding_bottom);
-               })
+               .attr("y", function(d){return h - padding_bottom - scaleY(Math.max(d["equity"], 0) - domainMin) ;})
                .attr("width", bs_width)
-               .attr("height", function(d){return scaleY(Math.abs(d["equity"]));});
+               .attr("height", function(d){
+                  console.log(Math.abs(d["equity"]));
+                  console.log(scaleY(Math.abs(d["equity"])));
+                  return scaleY(Math.abs(d["equity"]));});
 
          </script>
 </html>

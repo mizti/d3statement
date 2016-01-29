@@ -44,16 +44,19 @@
             ];
 
             var w = 1000;
-            var h = 400;
+            var h = 600;
 
             var svg = d3.select("body")
                         .append("svg")
                           .attr("width", w)
                           .attr("height", h);
 
+            var transition_delay = 100;
+            var transition_duration = 380;
+
             var padding_left = 20;
             var padding_bottom = 30;
-            var padding_top = 10;
+            var padding_top = 210;
 
             var bs_width = 30;
             var revenue_width = 40;
@@ -71,7 +74,9 @@
                (d["operation_cashflow"] + d["financing_cashflow"]), 
                (d["operation_cashflow"] + d["financing_cashflow"] + d["investment_cashflow"]) )
             });
-            var domainMax = d3.max(dataset, function(d){ return Math.max(d["current_asset"] + d["fixed_asset"], d["revenue"], d["operating_income"]  , d["ibit"], d["net_income"])});
+
+            var domainMax = d3.max(dataset, function(d){ return Math.max(d["current_asset"] + d["fixed_asset"], d["revenue"], d["operating_income"] ,d["ibit"], d["net_income"])});
+
             console.log(domainMin, domainMax)
             scaleY.domain([0, domainMax - domainMin]);
             scaleY.range([0, h - padding_bottom - padding_top]);
@@ -81,12 +86,28 @@
                .enter();
 
             eS
+               .append("line")
+               .attr("class", "zero")
+               .attr("stroke", "black")
+               .attr("stroke-width", "0.5pt")
+               .attr("fill", "none")
+               .attr("x1", function(d, i){return padding_left + 0.9 * i * (data_width);})
+               .attr("x2", function(d, i){return padding_left + (i + 1 )* (data_width);})
+               .attr("y1", function(d){
+                  return h - padding_bottom + scaleY(domainMin);
+               })
+               .attr("y2", function(d){
+                  return h - padding_bottom + scaleY(domainMin);
+               })
+
+            eS
                .append("rect")
                .attr("class", "fixed_asset")
                .attr("fill", "lightskyblue")
                .attr("x", function(d, i){return padding_left + i * (data_width );})
-               .attr("y", function(d){return h - padding_bottom - scaleY(d["fixed_asset"] - domainMin);})
                .attr("width", bs_width)
+               .attr("height", 0).attr("y", function(d){return h - padding_bottom + scaleY(domainMin);}).transition().delay(transition_delay).duration(transition_duration)
+               .attr("y", function(d){return h - padding_bottom - scaleY(d["fixed_asset"] - domainMin);})
                .attr("height", function(d){return scaleY(d["fixed_asset"]);});
 
             eS
@@ -94,18 +115,19 @@
                .attr("class", "current_asset")
                .attr("fill", "royalblue")
                .attr("x", function(d, i){return padding_left + i * (data_width );})
-               .attr("y", function(d){return h - padding_bottom - scaleY(d["fixed_asset"] + d["current_asset"] - domainMin) ;})
                .attr("width", bs_width)
+               .attr("height", 0).attr("y", function(d){return h - padding_bottom + scaleY(domainMin);}).transition().delay(transition_delay).duration(transition_duration)              
+               .attr("y", function(d){return h - padding_bottom - scaleY(d["fixed_asset"] + d["current_asset"] - domainMin) ;})
                .attr("height", function(d){return scaleY(d["current_asset"]);});
-
 
             eS
                .append("rect")
                .attr("class", "long-term_liabilities")
                .attr("fill", "lightpink")
                .attr("x", function(d, i){return padding_left + i * (data_width) + bs_width;})
-               .attr("y", function(d){return h - padding_bottom- scaleY( Math.max(0, d["equity"]) + d["long-term_liabilities"] - domainMin) ;})
                .attr("width", bs_width)
+               .attr("height", 0).attr("y", function(d){return h - padding_bottom + scaleY(domainMin);}).transition().delay(transition_delay).duration(transition_duration)             
+               .attr("y", function(d){return h - padding_bottom- scaleY( Math.max(0, d["equity"]) + d["long-term_liabilities"] - domainMin) ;})
                .attr("height", function(d){return scaleY(d["long-term_liabilities"]);});
 
             eS
@@ -113,8 +135,9 @@
                .attr("class", "short-term_liabilities")
                .attr("fill", "tomato")
                .attr("x", function(d, i){return padding_left + i * (data_width ) + bs_width;})
-               .attr("y", function(d){return h - padding_bottom - scaleY( Math.max(0, d["equity"]) + d["long-term_liabilities"] + d["short-term_liabilities"] - domainMin);})
                .attr("width", bs_width)
+               .attr("height", 0).attr("y", function(d){return h - padding_bottom + scaleY(domainMin);}).transition().delay(transition_delay).duration(transition_duration)
+               .attr("y", function(d){return h - padding_bottom - scaleY( Math.max(0, d["equity"]) + d["long-term_liabilities"] + d["short-term_liabilities"] - domainMin);})
                .attr("height", function(d){return scaleY(d["short-term_liabilities"]);});
 
             eS
@@ -122,8 +145,9 @@
                .attr("class", "equity")
                .attr("fill", "lightgreen")
                .attr("x", function(d, i){return padding_left + i * (data_width ) + bs_width;})
-               .attr("y", function(d){return h - padding_bottom - scaleY(Math.max(d["equity"], 0) - domainMin) ;})
                .attr("width", bs_width)
+               .attr("height", 0).attr("y", function(d){return h - padding_bottom + scaleY(domainMin);}).transition().delay(transition_delay).duration(transition_duration)
+               .attr("y", function(d){return h - padding_bottom - scaleY(Math.max(d["equity"], 0) - domainMin) ;})
                .attr("height", function(d){
                   console.log(Math.abs(d["equity"]));
                   console.log(scaleY(Math.abs(d["equity"])));
@@ -134,8 +158,10 @@
                .attr("class", "revenue")
                .attr("fill", "gold")
                .attr("x", function(d, i){return padding_left + i * (data_width ) + bs_width * 2 + padding_between_types;})
-               .attr("y", function(d){return h - padding_bottom - scaleY(d["revenue"] - domainMin);})
                .attr("width", revenue_width)
+               .attr("height", 0).attr("y", function(d){return h - padding_bottom + scaleY(domainMin);}).transition().delay(transition_delay).duration(transition_duration)
+
+               .attr("y", function(d){return h - padding_bottom - scaleY(d["revenue"] - domainMin);})
                .attr("height", function(d){return scaleY(d["revenue"]);});               
 
             eS
@@ -143,8 +169,9 @@
                .attr("class", "operating_income")
                .attr("fill", "greenyellow")
                .attr("x", function(d, i){return padding_left + i * (data_width ) + bs_width * 2 + padding_between_types;})
-               .attr("y", function(d){return h - padding_bottom - scaleY(d["operating_income"] - domainMin) ;})
                .attr("width", revenue_width * 0.8)
+               .attr("height", 0).attr("y", function(d){return h - padding_bottom + scaleY(domainMin);}).transition().delay(transition_delay).duration(transition_duration)
+               .attr("y", function(d){return h - padding_bottom - scaleY(d["operating_income"] - domainMin) ;})
                .attr("height", function(d){return scaleY(d["operating_income"]);});               
 
             eS
@@ -152,8 +179,9 @@
                .attr("class", "ibit")
                .attr("fill", "limegreen")
                .attr("x", function(d, i){return padding_left + i * (data_width ) + bs_width * 2 + padding_between_types;})
-               .attr("y", function(d){return h - padding_bottom- scaleY(d["ibit"] - domainMin);})
                .attr("width", revenue_width * 0.5)
+               .attr("height", 0).attr("y", function(d){return h - padding_bottom + scaleY(domainMin);}).transition().delay(transition_delay).duration(transition_duration)
+               .attr("y", function(d){return h - padding_bottom- scaleY(d["ibit"] - domainMin);})
                .attr("height", function(d){return scaleY(d["ibit"]);});
 
             eS
@@ -161,8 +189,9 @@
                .attr("class", "net_income")
                .attr("fill", "lime")
                .attr("x", function(d, i){return padding_left + i * (data_width ) + bs_width * 2 + padding_between_types;})
-               .attr("y", function(d){return h - padding_bottom -scaleY(d["net_income"] - domainMin);})
                .attr("width", revenue_width * 0.3)
+               .attr("height", 0).attr("y", function(d){return h - padding_bottom + scaleY(domainMin);}).transition().delay(transition_delay).duration(transition_duration)
+               .attr("y", function(d){return h - padding_bottom -scaleY(d["net_income"] - domainMin);})
                .attr("height", function(d){return scaleY(d["net_income"]);});
 
 
@@ -171,17 +200,46 @@
                .attr("class", "operation_cashflow")
                .attr("fill", "#38849A") //#A86780 #ADB853
                .attr("x", function(d, i){return padding_left + i * (data_width ) + bs_width * 2 + padding_between_types + revenue_width + padding_between_types;})
+               .attr("width", cashflow_width)
+               .attr("height", 0).attr("y", function(d){return h - padding_bottom + scaleY(domainMin);}).transition().delay(transition_delay).duration(transition_duration)
                .attr("y", function(d){
                   return h - padding_bottom + scaleY(domainMin) - scaleY( Math.max(0, d["operation_cashflow"]));
                })
-               .attr("width", cashflow_width)
                .attr("height", function(d){return scaleY( Math.abs(d["operation_cashflow"]));});
 
 
+            eS
+               .append("rect")
+               .attr("class", "financing_cashflow")
+               .attr("fill", "#A86780")
+               .attr("x", function(d, i){return padding_left + i * (data_width ) + bs_width * 2 + padding_between_types + revenue_width + padding_between_types + cashflow_width + padding_between_cashflows;})
+               .attr("width", cashflow_width)
+               .attr("height", 0).attr("y", function(d){return h - padding_bottom + scaleY(domainMin);}).transition().delay(transition_delay).duration(transition_duration)
+               .attr("y", function(d){
+                  return h - padding_bottom + scaleY(domainMin)
+                        - scaleY( d["operation_cashflow"])
+                        - scaleY( Math.max(0, d["financing_cashflow"]));
+               })
+               .attr("height", function(d){return scaleY( Math.abs(d["financing_cashflow"]));});
+
+            eS
+               .append("rect")
+               .attr("class", "investment_cashflow")
+               .attr("fill", "#ADB853")
+               .attr("x", function(d, i){return padding_left + i * (data_width ) + bs_width * 2 + padding_between_types + revenue_width + padding_between_types + 2 *( cashflow_width + padding_between_cashflows);})
+               .attr("width", cashflow_width)
+               .attr("height", 0).attr("y", function(d){return h - padding_bottom + scaleY(domainMin);}).transition().delay(transition_delay).duration(transition_duration)
+               .attr("y", function(d){
+                  return h - padding_bottom + scaleY(domainMin)
+                        - scaleY( d["operation_cashflow"])
+                        - scaleY( d["financing_cashflow"]);
+               })
+               .attr("height", function(d){return scaleY( Math.abs(d["investment_cashflow"]));});
 
             eS
                .append("line")
                .attr("class", "o_to_f")
+               .transition().delay(transition_delay + transition_duration - 30)
                .attr("stroke", "black")
                .attr("stroke-width", "0.5pt")
                .attr("stroke-dasharray", "0.2, 0.2")
@@ -200,6 +258,7 @@
             eS
                .append("line")
                .attr("class", "f_to_i")
+               .transition().delay(transition_delay + transition_duration - 30)
                .attr("stroke", "black")
                .attr("stroke-width", "0.5pt")
                .attr("stroke-dasharray", "0.2, 0.2")
@@ -218,31 +277,6 @@
                })
 
 
-            eS
-               .append("rect")
-               .attr("class", "financing_cashflow")
-               .attr("fill", "#A86780")
-               .attr("x", function(d, i){return padding_left + i * (data_width ) + bs_width * 2 + padding_between_types + revenue_width + padding_between_types + cashflow_width + padding_between_cashflows;})
-               .attr("y", function(d){
-                  return h - padding_bottom + scaleY(domainMin)
-                        - scaleY( d["operation_cashflow"])
-                        - scaleY( Math.max(0, d["financing_cashflow"]));
-               })
-               .attr("width", cashflow_width)
-               .attr("height", function(d){return scaleY( Math.abs(d["financing_cashflow"]));});
-
-            eS
-               .append("rect")
-               .attr("class", "investment_cashflow")
-               .attr("fill", "#ADB853")
-               .attr("x", function(d, i){return padding_left + i * (data_width ) + bs_width * 2 + padding_between_types + revenue_width + padding_between_types + 2 *( cashflow_width + padding_between_cashflows);})
-               .attr("y", function(d){
-                  return h - padding_bottom + scaleY(domainMin)
-                        - scaleY( d["operation_cashflow"])
-                        - scaleY( d["financing_cashflow"]);
-               })
-               .attr("width", cashflow_width)
-               .attr("height", function(d){return scaleY( Math.abs(d["investment_cashflow"]));});
 
 
 

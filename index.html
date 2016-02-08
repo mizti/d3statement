@@ -50,24 +50,33 @@
                         .append("svg")
                           .attr("width", w)
                           .attr("height", h);
-
+            // delay
             var transition_delay = 100;
             var transition_duration = 380;
 
-            var padding_left = 20;
+            // scaleX
+            var scaleX = d3.scale.linear();
+            scaleX.domain([0, w / 2])
+            scaleX.range([0, w / Math.max(2, dataset.length)])
+
+            // X
+            var padding_left = scaleX(20);
+            var bs_width = scaleX(30);
+            var revenue_width = scaleX(40);
+            var cashflow_width = scaleX(25);
+            var padding_between_cashflows = scaleX(10);
+
+            var padding_between_types = scaleX(15);
+            var padding_between_data = scaleX(20);
+            var data_width = scaleX(bs_width * 2 + padding_between_types + revenue_width + padding_between_types + cashflow_width * 3 + padding_between_cashflows * 2 + padding_between_data);
+
+            // Y
             var padding_bottom = 30;
             var padding_top = 210;
 
-            var bs_width = 30;
-            var revenue_width = 40;
-            var cashflow_width = 25;
-            var padding_between_cashflows = 10;
-
-            var padding_between_types = 15;
-            var padding_between_data = 20;
-            var data_width = bs_width * 2 + padding_between_types + revenue_width + padding_between_types + cashflow_width * 3 + padding_between_cashflows * 2 + padding_between_data;
-
+            // scaleY
             var scaleY = d3.scale.linear();
+
             var domainMin = d3.min(dataset, function(d){ 
                return Math.min(0, d["equity"], d["operating_income"] , d["ibit"], d["net_income"], 
                (d["operation_cashflow"]), 
@@ -77,7 +86,6 @@
 
             var domainMax = d3.max(dataset, function(d){ return Math.max(d["current_asset"] + d["fixed_asset"], d["revenue"], d["operating_income"] ,d["ibit"], d["net_income"])});
 
-            console.log(domainMin, domainMax)
             scaleY.domain([0, domainMax - domainMin]);
             scaleY.range([0, h - padding_bottom - padding_top]);
 
